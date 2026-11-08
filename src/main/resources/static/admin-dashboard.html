@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusLink — Admin Dashboard</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0f0f1a;
+            --surface: #1a1a2e;
+            --surface2: #16213e;
+            --border: rgba(67,97,238,0.2);
+            --accent: #4361ee;
+            --accent2: #7209b7;
+            --text: #e0e0e0;
+            --text-muted: #8892b0;
+            --text-light: #ccd6f6;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --sidebar-w: 240px;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: var(--text);
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 1.5rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-logo .icon {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo .title { font-weight: 700; font-size: 1.05rem; color: var(--text-light); }
+        .sidebar-logo .role { font-size: 0.72rem; color: var(--text-muted); }
+
+        .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            border-left: 3px solid transparent;
+            user-select: none;
+        }
+
+        .nav-item:hover { background: rgba(67,97,238,0.08); color: var(--text); }
+        .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(67,97,238,0.1); font-weight: 600; }
+
+        .nav-item .icon { font-size: 1.05rem; width: 20px; text-align: center; }
+
+        .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid var(--border); }
+
+        .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .avatar {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700;
+            flex-shrink: 0;
+        }
+        .user-name { font-size: 0.88rem; font-weight: 600; color: var(--text-light); }
+        .user-role { font-size: 0.72rem; color: var(--text-muted); }
+
+        .btn-logout {
+            width: 100%; padding: 0.5rem; border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 8px; background: rgba(239,68,68,0.08);
+            color: #fca5a5; cursor: pointer; font-size: 0.85rem;
+            transition: all 0.2s; font-family: inherit;
+        }
+        .btn-logout:hover { background: rgba(239,68,68,0.18); }
+
+        /* MAIN */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(26,26,46,0.7);
+            backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 50;
+        }
+
+        .topbar h2 { font-size: 1.3rem; font-weight: 700; color: var(--text-light); }
+        .topbar p { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.1rem; }
+
+        .content { padding: 2rem; flex: 1; }
+
+        /* TABS */
+        .tab { display: none; }
+        .tab.active { display: block; }
+
+        /* STAT CARDS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 16px 16px 0 0;
+        }
+        .stat-card.blue::after { background: var(--accent); }
+        .stat-card.purple::after { background: var(--accent2); }
+        .stat-card.green::after { background: var(--success); }
+        .stat-card.orange::after { background: var(--warning); }
+
+        .stat-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--text-light); }
+        .stat-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+        /* CARDS */
+        .section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-card h3 { font-size: 1.05rem; font-weight: 600; color: var(--text-light); margin-bottom: 1.25rem; }
+
+        /* TABLE */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        th {
+            text-align: left; padding: 0.6rem 1rem;
+            color: var(--text-muted); font-weight: 600; font-size: 0.8rem;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+        }
+        td { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(67,97,238,0.04); }
+
+        /* BADGES */
+        .badge {
+            display: inline-flex; align-items: center;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+        }
+        .badge-open { background: rgba(34,197,94,0.15); color: #86efac; }
+        .badge-closed { background: rgba(107,114,128,0.15); color: #9ca3af; }
+        .badge-pending { background: rgba(245,158,11,0.15); color: #fcd34d; }
+        .badge-accepted { background: rgba(34,197,94,0.15); color: #86efac; }
+        .badge-rejected { background: rgba(239,68,68,0.15); color: #fca5a5; }
+        .badge-skill { background: rgba(67,97,238,0.15); color: #93c5fd; margin: 2px; }
+
+        /* FORM */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group.full { grid-column: 1 / -1; }
+        label { font-size: 0.82rem; font-weight: 500; color: #a8b2d8; }
+        input, textarea, select {
+            padding: 0.65rem 0.9rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(67,97,238,0.2); }
+        input::placeholder, textarea::placeholder { color: #4a5568; }
+        select option { background: #1a1a2e; }
+        textarea { resize: vertical; min-height: 80px; }
+
+        /* BUTTONS */
+        .btn {
+            padding: 0.6rem 1.2rem; border: none; border-radius: 8px;
+            font-size: 0.88rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; font-family: inherit;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(67,97,238,0.4); }
+        .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+        .btn-danger { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+        .btn-danger:hover { background: rgba(239,68,68,0.25); }
+        .btn-success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+        .btn-success:hover { background: rgba(34,197,94,0.25); }
+        .btn-secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: var(--text); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.13); }
+
+        .action-bar { display: flex; gap: 0.75rem; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            z-index: 200; align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 2rem;
+            width: 90%; max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+        }
+        .modal h3 { font-size: 1.15rem; color: var(--text-light); margin-bottom: 1.25rem; }
+        .modal-footer { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }
+
+        /* LOADING */
+        .loading { text-align: center; padding: 3rem; color: var(--text-muted); }
+        .spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid rgba(67,97,238,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* TOAST */
+        #toast {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            padding: 0.85rem 1.25rem; border-radius: 10px;
+            font-size: 0.9rem; font-weight: 500;
+            z-index: 999; transform: translateY(100px); opacity: 0;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.success { background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.4); color: #86efac; }
+        #toast.error { background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; }
+
+        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="icon">🎓</div>
+        <div>
+            <div class="title">CampusLink</div>
+            <div class="role">Admin Panel</div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-item active" onclick="switchTab('overview')">
+            <span class="icon">📊</span> Overview
+        </div>
+        <div class="nav-item" onclick="switchTab('internships')">
+            <span class="icon">💼</span> Manage Internships
+        </div>
+        <div class="nav-item" onclick="switchTab('students')">
+            <span class="icon">👥</span> Registered Students
+        </div>
+        <div class="nav-item" onclick="switchTab('applications')">
+            <span class="icon">📋</span> Review Applications
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="avatar" id="avatarText">A</div>
+            <div>
+                <div class="user-name" id="adminName">Admin</div>
+                <div class="user-role">Administrator</div>
+            </div>
+        </div>
+        <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+    <div class="topbar">
+        <h2 id="tabTitle">Overview</h2>
+        <p id="tabSubtitle">System overview and statistics</p>
+    </div>
+
+    <div class="content">
+
+        <!-- OVERVIEW TAB -->
+        <div class="tab active" id="tab-overview">
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="stat-students">—</div>
+                    <div class="stat-label">Registered Students</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-icon">💼</div>
+                    <div class="stat-value" id="stat-internships">—</div>
+                    <div class="stat-label">Total Internships</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-value" id="stat-applications">—</div>
+                    <div class="stat-label">Total Applications</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-value" id="stat-pending">—</div>
+                    <div class="stat-label">Pending Reviews</div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h3>Recent Applications</h3>
+                <div id="overview-applications">
+                    <div class="loading"><div class="spinner"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INTERNSHIPS TAB -->
+        <div class="tab" id="tab-internships">
+            <div class="section-card">
+                <div class="action-bar">
+                    <h3 style="margin-bottom:0">All Internships</h3>
+                    <button class="btn btn-primary" onclick="openInternshipModal()">+ Add Internship</button>
+                </div>
+                <div class="table-wrap">
+                    <div id="internships-table">
+                        <div class="loading"><div class="spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STUDENTS TAB -->
+        <div class="tab" id="tab-students">
+            <div class="section-card">
+                <h3>Registered Students</h3>
+                <div class="table-wrap">
+                    <div id="students-table">
+                        <div class="loading"><div class="spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- APPLICATIONS TAB -->
+        <div class="tab" id="tab-applications">
+            <div class="section-card">
+                <h3>All Applications</h3>
+                <div class="table-wrap">
+                    <div id="applications-table">
+                        <div class="loading"><div class="spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- INTERNSHIP MODAL -->
+<div class="modal-overlay" id="internshipModal">
+    <div class="modal">
+        <h3 id="internshipModalTitle">Add New Internship</h3>
+        <form id="internshipForm" onsubmit="saveInternship(event)">
+            <input type="hidden" id="internshipId">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="i-title" placeholder="e.g. Software Developer Intern" required>
+                </div>
+                <div class="form-group">
+                    <label>Company *</label>
+                    <input type="text" id="i-company" placeholder="e.g. TechCorp Pvt Ltd" required>
+                </div>
+                <div class="form-group">
+                    <label>Location *</label>
+                    <input type="text" id="i-location" placeholder="e.g. Bangalore, Remote" required>
+                </div>
+                <div class="form-group">
+                    <label>Stipend</label>
+                    <input type="text" id="i-stipend" placeholder="e.g. ₹15,000/month or Unpaid">
+                </div>
+                <div class="form-group">
+                    <label>Deadline *</label>
+                    <input type="date" id="i-deadline" required>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="i-status">
+                        <option value="OPEN">Open</option>
+                        <option value="CLOSED">Closed</option>
+                    </select>
+                </div>
+                <div class="form-group full">
+                    <label>Description *</label>
+                    <textarea id="i-description" placeholder="Describe the internship role and responsibilities..." required></textarea>
+                </div>
+                <div class="form-group full">
+                    <label>Requirements *</label>
+                    <textarea id="i-requirements" placeholder="Skills, qualifications, and prerequisites..." required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeInternshipModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveInternshipBtn">Save Internship</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="modal-overlay" id="feedbackModal">
+    <div class="modal">
+        <h3 id="feedbackModalTitle">Update Application Status</h3>
+        <input type="hidden" id="feedback-appId">
+        <input type="hidden" id="feedback-status">
+        <div class="form-group">
+            <label>Admin Feedback (optional)</label>
+            <textarea id="feedback-text" placeholder="Provide feedback to the student..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeFeedbackModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="submitFeedback()">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+    // Auth guard
+    const userStr = sessionStorage.getItem('user');
+    if (!userStr) { window.location.href = '/login'; }
+    const user = JSON.parse(userStr || '{}');
+    if (user.role !== 'ADMIN') { window.location.href = '/student/dashboard'; }
+
+    document.getElementById('adminName').textContent = user.name || 'Admin';
+    document.getElementById('avatarText').textContent = (user.name || 'A')[0].toUpperCase();
+
+    let currentTab = 'overview';
+    const tabs = {
+        overview: { title: 'Overview', subtitle: 'System overview and statistics' },
+        internships: { title: 'Manage Internships', subtitle: 'Create, edit, and delete internship listings' },
+        students: { title: 'Registered Students', subtitle: 'View all student profiles and skills' },
+        applications: { title: 'Review Applications', subtitle: 'Accept or reject student applications' }
+    };
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.querySelectorAll('.nav-item')[Object.keys(tabs).indexOf(tab)].classList.add('active');
+        document.getElementById('tabTitle').textContent = tabs[tab].title;
+        document.getElementById('tabSubtitle').textContent = tabs[tab].subtitle;
+        currentTab = tab;
+        loadTab(tab);
+    }
+
+    function loadTab(tab) {
+        if (tab === 'overview') loadOverview();
+        else if (tab === 'internships') loadInternships();
+        else if (tab === 'students') loadStudents();
+        else if (tab === 'applications') loadApplications();
+    }
+
+    // Toast
+    function toast(msg, type = 'success') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'show ' + type;
+        setTimeout(() => { t.className = ''; }, 3000);
+    }
+
+    function logout() {
+        sessionStorage.clear();
+        window.location.href = '/login';
+    }
+
+    // ===================== OVERVIEW =====================
+    async function loadOverview() {
+        try {
+            const [students, internships, applications] = await Promise.all([
+                fetch('/api/students').then(r => r.json()),
+                fetch('/api/internships').then(r => r.json()),
+                fetch('/api/applications').then(r => r.json())
+            ]);
+
+            document.getElementById('stat-students').textContent = Array.isArray(students) ? students.length : '—';
+            document.getElementById('stat-internships').textContent = Array.isArray(internships) ? internships.length : '—';
+            document.getElementById('stat-applications').textContent = Array.isArray(applications) ? applications.length : '—';
+            const pending = Array.isArray(applications) ? applications.filter(a => a.status === 'PENDING').length : '—';
+            document.getElementById('stat-pending').textContent = pending;
+
+            if (Array.isArray(applications) && applications.length > 0) {
+                const recent = applications.slice(0, 8);
+                document.getElementById('overview-applications').innerHTML = `
+                    <table>
+                        <thead><tr><th>Student</th><th>Internship</th><th>Applied At</th><th>Status</th></tr></thead>
+                        <tbody>${recent.map(a => `
+                            <tr>
+                                <td>${a.student ? a.student.name : 'ID:' + a.studentId}</td>
+                                <td>${a.internship ? a.internship.title : 'ID:' + a.internshipId}</td>
+                                <td>${a.appliedAt ? new Date(a.appliedAt).toLocaleDateString() : '—'}</td>
+                                <td><span class="badge badge-${a.status.toLowerCase()}">${a.status}</span></td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>`;
+            } else {
+                document.getElementById('overview-applications').innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No applications yet.</p></div>';
+            }
+        } catch (e) {
+            console.error(e);
+            toast('Failed to load overview data.', 'error');
+        }
+    }
+
+    // ===================== INTERNSHIPS =====================
+    let allInternships = [];
+
+    async function loadInternships() {
+        document.getElementById('internships-table').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        try {
+            allInternships = await fetch('/api/internships').then(r => r.json());
+            renderInternshipsTable();
+        } catch (e) {
+            document.getElementById('internships-table').innerHTML = '<div class="empty-state"><p>Failed to load internships.</p></div>';
+        }
+    }
+
+    function renderInternshipsTable() {
+        if (!allInternships.length) {
+            document.getElementById('internships-table').innerHTML = '<div class="empty-state"><div class="icon">💼</div><p>No internships yet. Add one!</p></div>';
+            return;
+        }
+        document.getElementById('internships-table').innerHTML = `
+            <table>
+                <thead>
+                    <tr><th>Title</th><th>Company</th><th>Location</th><th>Stipend</th><th>Deadline</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    ${allInternships.map(i => `
+                    <tr>
+                        <td><strong>${i.title}</strong></td>
+                        <td>${i.company}</td>
+                        <td>${i.location}</td>
+                        <td>${i.stipend || 'Unpaid'}</td>
+                        <td>${i.deadline || '—'}</td>
+                        <td><span class="badge badge-${(i.status||'').toLowerCase()}">${i.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="editInternship(${i.id})">✏️ Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteInternship(${i.id})" style="margin-left:4px">🗑️ Delete</button>
+                        </td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>`;
+    }
+
+    function openInternshipModal(internship = null) {
+        document.getElementById('internshipModalTitle').textContent = internship ? 'Edit Internship' : 'Add New Internship';
+        document.getElementById('internshipId').value = internship ? internship.id : '';
+        document.getElementById('i-title').value = internship ? internship.title : '';
+        document.getElementById('i-company').value = internship ? internship.company : '';
+        document.getElementById('i-location').value = internship ? internship.location : '';
+        document.getElementById('i-stipend').value = internship ? (internship.stipend || '') : '';
+        document.getElementById('i-deadline').value = internship ? internship.deadline : '';
+        document.getElementById('i-status').value = internship ? (internship.status || 'OPEN') : 'OPEN';
+        document.getElementById('i-description').value = internship ? internship.description : '';
+        document.getElementById('i-requirements').value = internship ? internship.requirements : '';
+        document.getElementById('internshipModal').classList.add('open');
+    }
+
+    function editInternship(id) {
+        const internship = allInternships.find(i => i.id === id);
+        if (internship) openInternshipModal(internship);
+    }
+
+    function closeInternshipModal() {
+        document.getElementById('internshipModal').classList.remove('open');
+        document.getElementById('internshipForm').reset();
+    }
+
+    async function saveInternship(e) {
+        e.preventDefault();
+        const id = document.getElementById('internshipId').value;
+        const body = {
+            title: document.getElementById('i-title').value.trim(),
+            company: document.getElementById('i-company').value.trim(),
+            location: document.getElementById('i-location').value.trim(),
+            stipend: document.getElementById('i-stipend').value.trim(),
+            deadline: document.getElementById('i-deadline').value,
+            status: document.getElementById('i-status').value,
+            description: document.getElementById('i-description').value.trim(),
+            requirements: document.getElementById('i-requirements').value.trim(),
+            role: 'ADMIN'
+        };
+
+        const btn = document.getElementById('saveInternshipBtn');
+        btn.disabled = true; btn.textContent = 'Saving...';
+
+        try {
+            let res;
+            if (id) {
+                res = await fetch('/api/internships/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            } else {
+                res = await fetch('/api/internships', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            }
+            const data = await res.json();
+            if (res.ok) {
+                toast(data.message || 'Saved!', 'success');
+                closeInternshipModal();
+                loadInternships();
+            } else {
+                toast(data.error || 'Save failed.', 'error');
+            }
+        } catch(err) {
+            toast('Connection error.', 'error');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Save Internship';
+        }
+    }
+
+    async function deleteInternship(id) {
+        if (!confirm('Delete this internship? This will also remove all applications.')) return;
+        try {
+            const res = await fetch('/api/internships/' + id + '?role=ADMIN', { method: 'DELETE' });
+            const data = await res.json();
+            if (res.ok) { toast('Internship deleted.', 'success'); loadInternships(); }
+            else toast(data.error || 'Delete failed.', 'error');
+        } catch(e) { toast('Connection error.', 'error'); }
+    }
+
+    // ===================== STUDENTS =====================
+    async function loadStudents() {
+        document.getElementById('students-table').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        try {
+            const students = await fetch('/api/students').then(r => r.json());
+            if (!students.length) {
+                document.getElementById('students-table').innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No students registered yet.</p></div>';
+                return;
+            }
+            document.getElementById('students-table').innerHTML = `
+                <table>
+                    <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>CGPA</th><th>Grad. Year</th><th>Skills</th></tr></thead>
+                    <tbody>
+                        ${students.map(s => `
+                        <tr>
+                            <td><strong>${s.name}</strong></td>
+                            <td style="color:var(--text-muted)">${s.email}</td>
+                            <td>${s.department || '—'}</td>
+                            <td>${s.cgpa !== undefined ? s.cgpa.toFixed(2) : '—'}</td>
+                            <td>${s.graduationYear || '—'}</td>
+                            <td>${(s.skills && s.skills.length)
+                                ? s.skills.slice(0,3).map(sk => `<span class="badge badge-skill">${sk.skill ? sk.skill.name : ''}</span>`).join('') + (s.skills.length > 3 ? `<span class="badge badge-skill">+${s.skills.length-3}</span>` : '')
+                                : '<span style="color:var(--text-muted)">No skills</span>'}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+        } catch(e) {
+            document.getElementById('students-table').innerHTML = '<div class="empty-state"><p>Failed to load students.</p></div>';
+        }
+    }
+
+    // ===================== APPLICATIONS =====================
+    async function loadApplications() {
+        document.getElementById('applications-table').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        try {
+            const apps = await fetch('/api/applications').then(r => r.json());
+            if (!apps.length) {
+                document.getElementById('applications-table').innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No applications yet.</p></div>';
+                return;
+            }
+            document.getElementById('applications-table').innerHTML = `
+                <table>
+                    <thead><tr><th>Student</th><th>Internship</th><th>Applied At</th><th>Cover Letter</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        ${apps.map(a => `
+                        <tr>
+                            <td><strong>${a.student ? a.student.name : 'ID:'+a.studentId}</strong></td>
+                            <td>${a.internship ? a.internship.title + '<br><small style="color:var(--text-muted)">' + (a.internship.company||'') + '</small>' : 'ID:'+a.internshipId}</td>
+                            <td style="color:var(--text-muted)">${a.appliedAt ? new Date(a.appliedAt).toLocaleDateString() : '—'}</td>
+                            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted)" title="${(a.coverLetter||'').replace(/"/g,'&quot;')}">${a.coverLetter || '—'}</td>
+                            <td><span class="badge badge-${(a.status||'').toLowerCase()}">${a.status}</span>${a.adminFeedback ? '<br><small style="color:var(--text-muted)">'+a.adminFeedback+'</small>' : ''}</td>
+                            <td>
+                                ${a.status === 'PENDING' ? `
+                                    <button class="btn btn-sm btn-success" onclick="openFeedback(${a.id},'ACCEPTED')">✅ Accept</button>
+                                    <button class="btn btn-sm btn-danger" onclick="openFeedback(${a.id},'REJECTED')" style="margin-left:4px">❌ Reject</button>
+                                ` : '<span style="color:var(--text-muted);font-size:0.8rem">Reviewed</span>'}
+                            </td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+        } catch(e) {
+            document.getElementById('applications-table').innerHTML = '<div class="empty-state"><p>Failed to load applications.</p></div>';
+        }
+    }
+
+    function openFeedback(appId, status) {
+        document.getElementById('feedback-appId').value = appId;
+        document.getElementById('feedback-status').value = status;
+        document.getElementById('feedbackModalTitle').textContent = status === 'ACCEPTED' ? '✅ Accept Application' : '❌ Reject Application';
+        document.getElementById('feedback-text').value = '';
+        document.getElementById('feedbackModal').classList.add('open');
+    }
+
+    function closeFeedbackModal() {
+        document.getElementById('feedbackModal').classList.remove('open');
+    }
+
+    async function submitFeedback() {
+        const appId = document.getElementById('feedback-appId').value;
+        const status = document.getElementById('feedback-status').value;
+        const feedback = document.getElementById('feedback-text').value.trim();
+
+        try {
+            const res = await fetch('/api/applications/' + appId + '/status', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status, feedback })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                toast('Application ' + status.toLowerCase() + '.', 'success');
+                closeFeedbackModal();
+                loadApplications();
+            } else {
+                toast(data.error || 'Update failed.', 'error');
+            }
+        } catch(e) { toast('Connection error.', 'error'); }
+    }
+
+    // Init
+    loadOverview();
+</script>
+</body>
+</html>

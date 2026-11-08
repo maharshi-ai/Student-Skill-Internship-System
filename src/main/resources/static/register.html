@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusLink — Register</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            background: #0f0f1a;
+            background-image: radial-gradient(ellipse at 20% 50%, rgba(67, 97, 238, 0.15) 0%, transparent 60%),
+                              radial-gradient(ellipse at 80% 20%, rgba(114, 9, 183, 0.10) 0%, transparent 50%);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e0e0e0;
+            padding: 2rem 1rem;
+        }
+
+        .container { width: 100%; max-width: 500px; }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-icon {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, #4361ee, #7209b7);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 0.75rem;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 32px rgba(67, 97, 238, 0.4);
+        }
+
+        .logo-area h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4361ee, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card {
+            background: rgba(26, 26, 46, 0.9);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+            border-radius: 20px;
+            padding: 2.25rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .card h2 { font-size: 1.3rem; font-weight: 600; color: #ccd6f6; margin-bottom: 0.2rem; }
+        .card .subtitle { color: #8892b0; font-size: 0.88rem; margin-bottom: 1.5rem; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group { margin-bottom: 0; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #a8b2d8;
+            margin-bottom: 0.4rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 9px;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #4361ee;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        input::placeholder, textarea::placeholder { color: #4a5568; }
+
+        textarea { resize: vertical; min-height: 70px; }
+
+        select option { background: #1a1a2e; }
+
+        .btn {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1.25rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4361ee, #7209b7);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.35);
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(67,97,238,0.5); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .message {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .message.error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+        .message.success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 1.25rem;
+            font-size: 0.88rem;
+            color: #8892b0;
+        }
+
+        .footer-link a { color: #4361ee; text-decoration: none; font-weight: 500; }
+        .footer-link a:hover { text-decoration: underline; }
+
+        .spinner {
+            display: inline-block;
+            width: 15px; height: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 480px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-area">
+            <div class="logo-icon">🎓</div>
+            <h1>CampusLink</h1>
+        </div>
+
+        <div class="card">
+            <h2>Create your account</h2>
+            <p class="subtitle">Join CampusLink and discover internship opportunities</p>
+
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group full">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" placeholder="john@example.com" required>
+                    </div>
+                    <div class="form-group full">
+                        <label for="password">Password * <span style="color:#8892b0;font-weight:400">(min. 6 chars)</span></label>
+                        <input type="password" id="password" placeholder="Create a strong password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department / Branch *</label>
+                        <input type="text" id="department" placeholder="e.g. Computer Science" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="+91 98765 43210">
+                    </div>
+                    <div class="form-group">
+                        <label for="cgpa">CGPA *</label>
+                        <input type="number" id="cgpa" placeholder="0.0 – 10.0" min="0" max="10" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="graduationYear">Graduation Year *</label>
+                        <input type="number" id="graduationYear" placeholder="2025" min="2020" max="2035" required>
+                    </div>
+                    <div class="form-group full">
+                        <label for="bio">Bio / About Me</label>
+                        <textarea id="bio" placeholder="Tell us a bit about yourself, your interests and goals..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="registerBtn">Create Account</button>
+                <div class="message" id="messageBox"></div>
+            </form>
+        </div>
+
+        <div class="footer-link">
+            Already have an account? <a href="/login">Sign in here</a>
+        </div>
+    </div>
+
+    <script>
+        async function handleRegister(e) {
+            e.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            const msgBox = document.getElementById('messageBox');
+
+            const body = {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                department: document.getElementById('department').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                cgpa: parseFloat(document.getElementById('cgpa').value) || 0,
+                graduationYear: parseInt(document.getElementById('graduationYear').value) || 2025,
+                bio: document.getElementById('bio').value.trim()
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Creating account...';
+            msgBox.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    msgBox.className = 'message success';
+                    msgBox.textContent = 'Account created successfully! Redirecting to login...';
+                    msgBox.style.display = 'block';
+                    setTimeout(() => { window.location.href = '/login'; }, 1500);
+                } else {
+                    msgBox.className = 'message error';
+                    msgBox.textContent = data.error || 'Registration failed. Please try again.';
+                    msgBox.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account';
+                }
+            } catch (err) {
+                msgBox.className = 'message error';
+                msgBox.textContent = 'Connection error. Please try again.';
+                msgBox.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        }
+    </script>
+</body>
+</html>

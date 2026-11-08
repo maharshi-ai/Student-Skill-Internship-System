@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusLink — Login</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            background: #0f0f1a;
+            background-image: radial-gradient(ellipse at 20% 50%, rgba(67, 97, 238, 0.15) 0%, transparent 60%),
+                              radial-gradient(ellipse at 80% 20%, rgba(114, 9, 183, 0.10) 0%, transparent 50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e0e0e0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 1.5rem;
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4361ee, #7209b7);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.8rem;
+            box-shadow: 0 8px 32px rgba(67, 97, 238, 0.4);
+        }
+
+        .logo-area h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4361ee, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-area p {
+            color: #8892b0;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .card {
+            background: rgba(26, 26, 46, 0.9);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #ccd6f6;
+            margin-bottom: 0.25rem;
+        }
+
+        .card .subtitle {
+            color: #8892b0;
+            font-size: 0.88rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #a8b2d8;
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: #4361ee;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        input::placeholder { color: #4a5568; }
+
+        .btn {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4361ee, #7209b7);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(67, 97, 238, 0.5);
+        }
+
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .message.error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+        .message.success { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.88rem;
+            color: #8892b0;
+        }
+
+        .footer-link a {
+            color: #4361ee;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-link a:hover { text-decoration: underline; }
+
+        .spinner {
+            display: inline-block;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-area">
+            <div class="logo-icon">🎓</div>
+            <h1>CampusLink</h1>
+            <p>Student Skill &amp; Internship Management System</p>
+        </div>
+
+        <div class="card">
+            <h2>Welcome back</h2>
+            <p class="subtitle">Sign in to your account to continue</p>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="loginBtn">Sign In</button>
+                <div class="message" id="messageBox"></div>
+            </form>
+        </div>
+
+        <div class="footer-link">
+            Don't have an account? <a href="/register">Create one here</a>
+        </div>
+    </div>
+
+    <script>
+        // Redirect if already logged in
+        const user = sessionStorage.getItem('user');
+        if (user) {
+            const u = JSON.parse(user);
+            window.location.href = u.role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const msgBox = document.getElementById('messageBox');
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Signing in...';
+            msgBox.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    sessionStorage.setItem('user', JSON.stringify(data));
+                    msgBox.className = 'message success';
+                    msgBox.textContent = 'Login successful! Redirecting...';
+                    msgBox.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = data.role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard';
+                    }, 600);
+                } else {
+                    msgBox.className = 'message error';
+                    msgBox.textContent = data.error || 'Login failed. Please check your credentials.';
+                    msgBox.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Sign In';
+                }
+            } catch (err) {
+                msgBox.className = 'message error';
+                msgBox.textContent = 'Connection error. Please try again.';
+                msgBox.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        }
+    </script>
+</body>
+</html>

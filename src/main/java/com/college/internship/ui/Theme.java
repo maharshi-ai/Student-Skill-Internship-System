@@ -1,7 +1,5 @@
 package com.college.internship.ui;
 
-import com.formdev.flatlaf.FlatDarkLaf;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -88,7 +86,7 @@ public class Theme {
      */
     public static void setupTheme() {
         try {
-            FlatDarkLaf.setup();
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
             // Core UI Arcs and Radius
             UIManager.put("Button.arc", 10);
