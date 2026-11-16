@@ -34,8 +34,8 @@ public class AuthController {
         String password = body.get("password");
         try {
             User user = authService.login(email, password);
-            request.changeSessionId();
             jakarta.servlet.http.HttpSession session = request.getSession(true);
+            request.changeSessionId();
             session.setAttribute("authenticatedUserId", user.getId());
             session.setAttribute("authenticatedUserRole", user.getRole().name());
             session.setAttribute("authenticatedUserName", user.getName());
