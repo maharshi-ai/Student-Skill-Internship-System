@@ -12,6 +12,7 @@ public class SessionAuthorizationInterceptor implements HandlerInterceptor {
         String path = request.getRequestURI();
         String method = request.getMethod();
         if (path.equals("/api/auth/login") || path.equals("/api/auth/register")) return true;
+        if (path.equals("/api/auth/me") || path.equals("/api/auth/logout")) return true;
         if (path.equals("/api/internships/open") && HttpMethod.GET.matches(method)) return true;
         if (path.equals("/api/internships") && HttpMethod.GET.matches(method)) return true;
         if (path.equals("/api/skills") && HttpMethod.GET.matches(method)) return true;
@@ -44,7 +45,7 @@ public class SessionAuthorizationInterceptor implements HandlerInterceptor {
         if (path.matches("/api/applications/\\d+/status") && !admin) return forbidden(response);
         if (path.equals("/api/internships") && !HttpMethod.GET.matches(method) && !admin) return forbidden(response);
         if (path.matches("/api/internships/\\d+") && !admin) return forbidden(response);
-        return true;
+        return forbidden(response); // Fail closed for any API route not explicitly authorized.
     }
     private boolean unauthorized(HttpServletResponse r) throws Exception {
         r.setStatus(401); r.setContentType("application/json"); r.getWriter().write("{\"error\":\"Authentication required.\"}"); return false;
