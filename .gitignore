@@ -2,6 +2,12 @@
 target/
 *.class
 
+# Local secrets and database configuration
+src/main/resources/db.properties
+.env
+.env.*
+!.env.example
+
 # IDE files
 .idea/
 *.iml
