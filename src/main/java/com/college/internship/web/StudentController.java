@@ -17,7 +17,6 @@ import java.util.Map;
  * REST Controller for Student profile and skill management endpoints.
  */
 @RestController
-@CrossOrigin(origins = "*")
 public class StudentController {
 
     private final StudentService studentService = new StudentService();
