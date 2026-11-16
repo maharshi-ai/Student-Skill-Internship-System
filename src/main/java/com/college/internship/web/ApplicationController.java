@@ -16,7 +16,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/applications")
-@CrossOrigin(origins = "*")
 public class ApplicationController {
 
     private final ApplicationService applicationService = new ApplicationService();
@@ -54,11 +53,11 @@ public class ApplicationController {
      * Body: { "studentId": 1, "internshipId": 2, "coverLetter": "..." }
      */
     @PostMapping
-    public ResponseEntity<?> applyForInternship(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> applyForInternship(@RequestBody Map<String, Object> body, jakarta.servlet.http.HttpServletRequest request) {
         try {
-            Object sidObj = body.get("studentId");
-            int studentId = (sidObj instanceof Number) ? ((Number) sidObj).intValue()
-                    : Integer.parseInt(sidObj.toString());
+            Object authenticatedId = request.getAttribute("authenticatedUserId");
+            if (!(authenticatedId instanceof Integer)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authentication required."));
+            int studentId = (Integer) authenticatedId;
             Object iidObj = body.get("internshipId");
             int internshipId = (iidObj instanceof Number) ? ((Number) iidObj).intValue()
                     : Integer.parseInt(iidObj.toString());

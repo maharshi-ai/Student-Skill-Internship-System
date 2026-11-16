@@ -18,7 +18,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService = new AuthService();
@@ -29,11 +28,17 @@ public class AuthController {
      * Returns: { "id": 1, "name": "...", "role": "STUDENT" } or 401
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body, jakarta.servlet.http.HttpServletRequest request) {
         String email = body.get("email");
         String password = body.get("password");
         try {
             User user = authService.login(email, password);
+            jakarta.servlet.http.HttpSession session = request.getSession(true);
+            request.changeSessionId();
+            session.setAttribute("authenticatedUserId", user.getId());
+            session.setAttribute("authenticatedUserRole", user.getRole().name());
+            session.setAttribute("authenticatedUserName", user.getName());
+            session.setMaxInactiveInterval(30 * 60);
             Map<String, Object> response = new HashMap<>();
             response.put("id", user.getId());
             response.put("name", user.getName());
@@ -47,6 +52,23 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Database error: " + e.getMessage()));
         }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> currentUser(jakarta.servlet.http.HttpSession session) {
+        Object id = session.getAttribute("authenticatedUserId");
+        Object role = session.getAttribute("authenticatedUserRole");
+        if (!(id instanceof Integer) || !(role instanceof String)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authentication required."));
+        }
+        return ResponseEntity.ok(Map.of("id", id, "role", role, "name", session.getAttribute("authenticatedUserName")));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(jakarta.servlet.http.HttpServletRequest request) {
+        jakarta.servlet.http.HttpSession session = request.getSession(false);
+        if (session != null) session.invalidate();
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully."));
     }
 
     /**

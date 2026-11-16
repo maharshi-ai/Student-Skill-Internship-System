@@ -216,11 +216,7 @@
 
     <script>
         // Redirect if already logged in
-        const user = sessionStorage.getItem('user');
-        if (user) {
-            const u = JSON.parse(user);
-            window.location.href = u.role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard';
-        }
+        fetch('/api/auth/me', { credentials: 'same-origin' }).then(res => res.ok ? res.json() : null).then(user => { if (user) window.location.href = user.role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard'; }).catch(() => {});
 
         async function handleLogin(e) {
             e.preventDefault();
@@ -243,7 +239,8 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    sessionStorage.setItem('user', JSON.stringify(data));
+                    // Keep identity only for existing dashboard display/navigation code. The server session is the sole authority for API access.
+                    sessionStorage.setItem("user", JSON.stringify(data));
                     msgBox.className = 'message success';
                     msgBox.textContent = 'Login successful! Redirecting...';
                     msgBox.style.display = 'block';
