@@ -239,7 +239,8 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    // Authentication is maintained by the server-side session cookie.
+                    // Keep identity only for existing dashboard display/navigation code. The server session is the sole authority for API access.
+                    sessionStorage.setItem("user", JSON.stringify(data));
                     msgBox.className = 'message success';
                     msgBox.textContent = 'Login successful! Redirecting...';
                     msgBox.style.display = 'block';
