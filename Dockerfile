@@ -1,8 +1,9 @@
 FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY pom.xml .
+COPY settings.xml /root/.m2/settings.xml
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn -B -ntp clean package -DskipTests
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/skill-internship-management-1.0.0.jar app.jar
