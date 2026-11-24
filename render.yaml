@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: skillbridge-student-internship
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /
+    autoDeploy: true
